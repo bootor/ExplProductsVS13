@@ -68,8 +68,11 @@
             this.textBoxQvv = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.buttonCalculation = new System.Windows.Forms.Button();
+            this.outBox = new System.Windows.Forms.RichTextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBoxC
@@ -458,11 +461,31 @@
             this.buttonCalculation.UseVisualStyleBackColor = true;
             this.buttonCalculation.Click += new System.EventHandler(this.buttonCalculation_Click);
             // 
+            // outBox
+            // 
+            this.outBox.Location = new System.Drawing.Point(9, 13);
+            this.outBox.Name = "outBox";
+            this.outBox.ReadOnly = true;
+            this.outBox.Size = new System.Drawing.Size(332, 70);
+            this.outBox.TabIndex = 19;
+            this.outBox.Text = "";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.outBox);
+            this.groupBox3.Location = new System.Drawing.Point(129, 164);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(347, 87);
+            this.groupBox3.TabIndex = 20;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Реакция взрывчатого превращения";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(488, 351);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.buttonCalculation);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.buttonSaveData);
@@ -479,6 +502,7 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -524,6 +548,8 @@
         private System.Windows.Forms.Button buttonCalculation;
         private System.Windows.Forms.TextBox textBoxMaxRo;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.RichTextBox outBox;
+        private System.Windows.Forms.GroupBox groupBox3;
     }
 }
 
