@@ -53,6 +53,174 @@ namespace ExplProducts
             }
         }
         
+        private void readDataFromFields()
+        {
+            double number = 0.0;
+            // atoms parsing
+            if (double.TryParse(textBoxC.Text, out number))
+            {
+                chn_atoms[0] = number;
+            }
+            if (double.TryParse(textBoxH.Text, out number))
+            {
+                chn_atoms[1] = number;
+            }
+            if (double.TryParse(textBoxN.Text, out number))
+            {
+                chn_atoms[2] = number;
+            }
+            if (double.TryParse(textBoxO.Text, out number))
+            {
+                oxy_atoms[2] = number;
+            }
+            if (double.TryParse(textBoxCl.Text, out number))
+            {
+                oxy_atoms[1] = number;
+            }
+            if (double.TryParse(textBoxF.Text, out number))
+            {
+                oxy_atoms[0] = number;
+            }
+            if (double.TryParse(textBoxK.Text, out number))
+            {
+                metal_atoms[0] = number;
+            }
+            if (double.TryParse(textBoxCa.Text, out number))
+            {
+                metal_atoms[1] = number;
+            }
+            if (double.TryParse(textBoxNa.Text, out number))
+            {
+                metal_atoms[2] = number;
+            }
+            if (double.TryParse(textBoxAl.Text, out number))
+            {
+                metal_atoms[3] = number;
+            }
+            if (double.TryParse(textBoxP.Text, out number))
+            {
+                metal_atoms[4] = number;
+            }
+            if (double.TryParse(textBoxSi.Text, out number))
+            {
+                metal_atoms[5] = number;
+            }
+            // other params parsing
+            if (double.TryParse(textBoxQvv.Text, out number))
+            {
+                Qvv = number;
+            }
+            if (double.TryParse(textBoxRovv.Text, out number))
+            {
+                Rovv = number;
+            }
+            if (double.TryParse(textBoxDkr.Text, out number))
+            {
+                Dkr = number;
+            }
+            if (double.TryParse(textBoxDvv.Text, out number))
+            {
+                Dvv = number;
+            }
+        }
+
+        private void firstOxydation()
+        {
+            #region atoms copy
+            metal_atoms_new = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            for (int i = 0; i < metal_atoms_new.Length; i++)
+            {
+                metal_atoms_new[i] = metal_atoms[i];
+            }
+            oxy_atoms_new = new double[3] { 0.0, 0.0, 0.0 };
+            for (int i = 0; i < oxy_atoms_new.Length; i++)
+            {
+                oxy_atoms_new[i] = oxy_atoms[i];
+            }
+            chn_atoms_new = new double[3] { 0.0, 0.0, 0.0 };
+            for (int i = 0; i < chn_atoms_new.Length; i++)
+            {
+                chn_atoms_new[i] = chn_atoms[i];
+            }
+            #endregion
+
+            #region metals oxydation
+            for (int i = 0; i < oxy_atoms.Length; i++)
+            {
+                for (int j = 0; j < metal_atoms.Length; j++)
+                {
+                    if (oxy_atoms_new[i] * oxy_val[i] >= metal_atoms_new[j] * metal_val[j])
+                    {
+                        prod_moles[i, j] = metal_atoms_new[j] * metal_val[j] / oxy_val[i];
+                        oxy_atoms_new[i] -= metal_atoms_new[j] * metal_val[j] / oxy_val[i];
+                        metal_atoms_new[j] = 0;
+                    }
+                    else
+                    {
+                        prod_moles[i, j] = oxy_atoms_new[i];
+                        metal_atoms_new[j] -= oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
+                        oxy_atoms_new[i] = 0;
+                    }
+                }
+            }
+            #endregion
+
+            #region CHN-oxydation
+            // N -> N2
+            chnprod_moles[6] = chn_atoms_new[2] / 2;
+            chn_atoms_new[2] = 0;
+
+            // H2O
+            if (oxy_atoms_new[2] >= chn_atoms_new[1] / 2) // O >= H / 2
+            {
+                chnprod_moles[3] = chn_atoms_new[1] / 2; // _H2O = H / 2
+                oxy_atoms_new[2] -= chn_atoms_new[1] / 2; // O = O - H / 2
+                chn_atoms_new[1] = 0; // H = 0
+            }
+            else
+            {
+                chnprod_moles[3] = oxy_atoms_new[2]; // _H2O = O
+                chn_atoms_new[1] -= oxy_atoms_new[2] * 2; // H = H - 2 * O
+                oxy_atoms_new[2] = 0; // O = 0
+                chnprod_moles[4] = chn_atoms_new[1] / 2; // _H2 = H / 2;
+                chn_atoms_new[1] = 0; // H = 0
+            }
+
+            // CO
+            if (chn_atoms_new[0] >= oxy_atoms_new[2]) // C >= O
+            {
+                chnprod_moles[1] = oxy_atoms_new[2]; // _CO = O
+                chn_atoms_new[0] -= oxy_atoms_new[2]; // C = C - O
+                oxy_atoms_new[2] = 0; // O = 0
+                chnprod_moles[2] = chn_atoms_new[0]; // _C = C
+            }
+            else
+            {
+                chnprod_moles[1] = chn_atoms_new[0]; // _CO = C
+                oxy_atoms_new[2] -= chn_atoms_new[0]; // O = O - C
+                chn_atoms_new[0] = 0; // C = 0
+            }
+
+            // CO2
+            if (oxy_atoms_new[2] > chnprod_moles[1])
+            {
+                chnprod_moles[0] = chnprod_moles[1]; // _CO2 = _CO
+                oxy_atoms_new[2] -= chnprod_moles[1]; // O = O - _CO
+                chnprod_moles[1] = 0; // _CO = 0
+            }
+            else
+            {
+                chnprod_moles[0] = oxy_atoms_new[2]; // _CO2 = O
+                chnprod_moles[1] -= oxy_atoms_new[2]; // _CO = _CO - O
+                oxy_atoms_new[2] = 0; // O = 0
+            }
+
+            // O2
+            chnprod_moles[5] = oxy_atoms_new[2] / 2; // _O2 = o / 2
+            oxy_atoms_new[2] = 0; // O = 0
+            #endregion
+        }
+        
         private double calcMass()
         {
             double result = 0.0;
@@ -400,170 +568,11 @@ namespace ExplProducts
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
 
-            #region read data from form fields
-            double number = 0.0;
-            // atoms parsing
-            if (double.TryParse(textBoxC.Text, out number))
-            {
-                chn_atoms[0] = number;
-            }
-            if (double.TryParse(textBoxH.Text, out number))
-            {
-                chn_atoms[1] = number;
-            }
-            if (double.TryParse(textBoxN.Text, out number))
-            {
-                chn_atoms[2] = number;
-            }
-            if (double.TryParse(textBoxO.Text, out number))
-            {
-                oxy_atoms[2] = number;
-            }
-            if (double.TryParse(textBoxCl.Text, out number))
-            {
-                oxy_atoms[1] = number;
-            }
-            if (double.TryParse(textBoxF.Text, out number))
-            {
-                oxy_atoms[0] = number;
-            }
-            if (double.TryParse(textBoxK.Text, out number))
-            {
-                metal_atoms[0] = number;
-            }
-            if (double.TryParse(textBoxCa.Text, out number))
-            {
-                metal_atoms[1] = number;
-            }
-            if (double.TryParse(textBoxNa.Text, out number))
-            {
-                metal_atoms[2] = number;
-            }
-            if (double.TryParse(textBoxAl.Text, out number))
-            {
-                metal_atoms[3] = number;
-            }
-            if (double.TryParse(textBoxP.Text, out number))
-            {
-                metal_atoms[4] = number;
-            }
-            if (double.TryParse(textBoxSi.Text, out number))
-            {
-                metal_atoms[5] = number;
-            }
-            // other params parsing
-            if (double.TryParse(textBoxQvv.Text, out number))
-            {
-                Qvv = number;
-            }
-            if (double.TryParse(textBoxRovv.Text, out number))
-            {
-                Rovv = number;
-            }
-            if (double.TryParse(textBoxDkr.Text, out number))
-            {
-                Dkr = number;
-            }
-            if (double.TryParse(textBoxDvv.Text, out number))
-            {
-                Dvv = number;
-            }
-            #endregion
+            readDataFromFields();
             
             Mvv = calcMass();
 
-            #region first oxydation
-                #region atoms copy
-                metal_atoms_new = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                for (int i = 0; i < metal_atoms_new.Length; i++)
-                {
-                    metal_atoms_new[i] = metal_atoms[i];
-                }
-                oxy_atoms_new = new double[3] { 0.0, 0.0, 0.0 };
-                for (int i = 0; i < oxy_atoms_new.Length; i++)
-                {
-                    oxy_atoms_new[i] = oxy_atoms[i];
-                }
-                chn_atoms_new = new double[3] { 0.0, 0.0, 0.0 };
-                for (int i = 0; i < chn_atoms_new.Length; i++)
-                {
-                    chn_atoms_new[i] = chn_atoms[i];
-                }
-                #endregion
-
-                #region metals oxydation
-                for (int i = 0; i < oxy_atoms.Length; i++)
-                {
-                    for (int j = 0; j < metal_atoms.Length; j++)
-                    {
-                        if (oxy_atoms_new[i] * oxy_val[i] >= metal_atoms_new[j] * metal_val[j])
-                        {
-                            prod_moles[i, j] = metal_atoms_new[j] * metal_val[j] / oxy_val[i];
-                            oxy_atoms_new[i] -= metal_atoms_new[j] * metal_val[j] / oxy_val[i];
-                            metal_atoms_new[j] = 0;
-                        } else
-                        {
-                            prod_moles[i, j] = oxy_atoms_new[i];
-                            metal_atoms_new[j] -= oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
-                            oxy_atoms_new[i] = 0;
-                        }
-                    }
-                }
-                #endregion
-
-                #region CHN-oxydation
-                // N -> N2
-                chnprod_moles[6] = chn_atoms_new[2] / 2;
-                chn_atoms_new[2] = 0;
-
-                // H2O
-                if (oxy_atoms_new[2] >= chn_atoms_new[1] / 2) // O >= H / 2
-                {
-                    chnprod_moles[3] = chn_atoms_new[1] / 2; // _H2O = H / 2
-                    oxy_atoms_new[2] -= chn_atoms_new[1] / 2; // O = O - H / 2
-                    chn_atoms_new[1] = 0; // H = 0
-                }
-                else
-                {
-                    chnprod_moles[3] = oxy_atoms_new[2]; // _H2O = O
-                    chn_atoms_new[1] -= oxy_atoms_new[2] * 2; // H = H - 2 * O
-                    oxy_atoms_new[2] = 0; // O = 0
-                    chnprod_moles[4] = chn_atoms_new[1] / 2; // _H2 = H / 2;
-                    chn_atoms_new[1] = 0; // H = 0
-                }
-                
-                // CO
-                if (chn_atoms_new[0] >= oxy_atoms_new[2]) // C >= O
-                {
-                    chnprod_moles[1] = oxy_atoms_new[2]; // _CO = O
-                    chn_atoms_new[0] -= oxy_atoms_new[2]; // C = C - O
-                    oxy_atoms_new[2] = 0; // O = 0
-                    chnprod_moles[2] = chn_atoms_new[0]; // _C = C
-                } else
-                {
-                    chnprod_moles[1] = chn_atoms_new[0]; // _CO = C
-                    oxy_atoms_new[2] -= chn_atoms_new[0]; // O = O - C
-                    chn_atoms_new[0] = 0; // C = 0
-                }
-                
-                // CO2
-                if (oxy_atoms_new[2] > chnprod_moles[1])
-                {
-                    chnprod_moles[0] = chnprod_moles[1]; // _CO2 = _CO
-                    oxy_atoms_new[2] -= chnprod_moles[1]; // O = O - _CO
-                    chnprod_moles[1] = 0; // _CO = 0
-                } else
-                {
-                    chnprod_moles[0] = oxy_atoms_new[2]; // _CO2 = O
-                    chnprod_moles[1] -= oxy_atoms_new[2]; // _CO = _CO - O
-                    oxy_atoms_new[2] = 0; // O = 0
-                }
-                
-                // O2
-                chnprod_moles[5] = oxy_atoms_new[2] / 2; // _O2 = o / 2
-                oxy_atoms_new[2] = 0; // O = 0
-                #endregion
-            #endregion
+            firstOxydation();
 
             reactionPrint();
         }
