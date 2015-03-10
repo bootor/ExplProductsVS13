@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace ExplProducts
 {
@@ -14,6 +15,7 @@ namespace ExplProducts
     {
         public Form1()
         {
+            //loadData();
             InitializeComponent();
         }
 
@@ -21,13 +23,49 @@ namespace ExplProducts
         private string[] metal_names, oxy_names, chn_names, chnprod_names;
         private int[] metal_val, oxy_val;
         private double[] metal_atoms, oxy_atoms, chn_atoms, metal_atoms_new, oxy_atoms_new, chn_atoms_new, chnprod_moles;
+        private double[] metal_mass, chn_mass, oxy_mass, chnprod_mass;
+        private double[,] prod_mass;
         private string[,] prod_names;
         private double[,] prod_moles;
         private double Qvv;
         private double Rovv;
         private double Dkr;
         private double Dvv;
+        private double Mvv;
         #endregion
+
+        private void loadData()
+        {
+            string CurrDir = Directory.GetCurrentDirectory() + "\\";
+            string dataDir = CurrDir + "data" + "\\";
+            string[] dataFiles = Directory.GetFiles(dataDir);
+            foreach (string _file in dataFiles)
+            {
+                if (_file.Contains(".dat"))
+                {
+                    System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
+                    string line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        // Do smth
+                    }
+                }
+            }
+        }
+        
+        private double calcMass()
+        {
+            double result = 0.0;
+
+            for (int i = 0; i < metal_atoms.Length; i++)
+                result += metal_atoms[i] * metal_mass[i];
+            for (int i = 0; i < oxy_atoms.Length; i++)
+                result += oxy_atoms[i] * oxy_mass[i];
+            for (int i = 0; i < chn_atoms.Length; i++)
+                result += chn_atoms[i] * chn_mass[i];
+            
+            return result;
+        }
 
         #region forms decimal input filtration
         private void textBoxC_KeyPress(object sender, KeyPressEventArgs e)
@@ -308,13 +346,16 @@ namespace ExplProducts
             metal_names = new string[] { "K", "Ca", "Na", "Al", "P", "Si" };
             metal_val = new int[] { 1, 2, 1, 3, 5, 4 };
             metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            metal_mass = new double[] { 39.0983, 40.08, 22.98977, 26.98154, 30.97376, 28.086};
 
             chn_names = new string[] { "C", "H", "N" };
             chn_atoms = new double[] { 0.0, 0.0, 0.0};
+            chn_mass = new double[] { 12.0108, 1.00795, 14.0067 };
 
             oxy_names = new string[] { "F", "Cl", "O" };
             oxy_val = new int[] { 1, 1, 2 };
             oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
+            oxy_mass = new double[] { 18.9984, 35.453, 15.9994 };
 
             prod_names = new string[,] { { "KF", "CaF2", "NaF", "AlF3", "PF5", "SiF4" }, 
                                          { "KCl", "CaCl2", "NaCl", "AlCl3", "PCl5", "SiCl4" }, 
@@ -322,9 +363,13 @@ namespace ExplProducts
             prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-
+            prod_mass = new double[,] { { 58.0967, 78.0768, 41.98817, 83.97674, 125.96576, 104.0796 },
+                                        { 74.5513, 110.986, 58.44277, 133.34054, 208.23876, 169.898 },
+                                        { 94.196, 56.0794, 61.97894, 101.96128, 141.94452, 60.0848} };
+            
             chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
 
             #region read data from form fields
             double number = 0.0;
@@ -396,6 +441,8 @@ namespace ExplProducts
             }
             #endregion
             
+            Mvv = calcMass();
+
             #region first oxydation
                 #region atoms copy
                 metal_atoms_new = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -428,8 +475,8 @@ namespace ExplProducts
                         } else
                         {
                             prod_moles[i, j] = oxy_atoms_new[i];
-                            oxy_atoms_new[i] = 0;
                             metal_atoms_new[j] -= oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
+                            oxy_atoms_new[i] = 0;
                         }
                     }
                 }
@@ -439,6 +486,22 @@ namespace ExplProducts
                 // N -> N2
                 chnprod_moles[6] = chn_atoms_new[2] / 2;
                 chn_atoms_new[2] = 0;
+
+                // H2O
+                if (oxy_atoms_new[2] >= chn_atoms_new[1] / 2) // O >= H / 2
+                {
+                    chnprod_moles[3] = chn_atoms_new[1] / 2; // _H2O = H / 2
+                    oxy_atoms_new[2] -= chn_atoms_new[1] / 2; // O = O - H / 2
+                    chn_atoms_new[1] = 0; // H = 0
+                }
+                else
+                {
+                    chnprod_moles[3] = oxy_atoms_new[2]; // _H2O = O
+                    chn_atoms_new[1] -= oxy_atoms_new[2] * 2; // H = H - 2 * O
+                    oxy_atoms_new[2] = 0; // O = 0
+                    chnprod_moles[4] = chn_atoms_new[1] / 2; // _H2 = H / 2;
+                    chn_atoms_new[1] = 0; // H = 0
+                }
                 
                 // CO
                 if (chn_atoms_new[0] >= oxy_atoms_new[2]) // C >= O
@@ -452,21 +515,6 @@ namespace ExplProducts
                     chnprod_moles[1] = chn_atoms_new[0]; // _CO = C
                     oxy_atoms_new[2] -= chn_atoms_new[0]; // O = O - C
                     chn_atoms_new[0] = 0; // C = 0
-                }
-                
-                // H2O
-                if (oxy_atoms_new[2] >= chn_atoms_new[1] / 2) // O >= H / 2
-                {
-                    chnprod_moles[3] = chn_atoms_new[1] / 2; // _H2O = H / 2
-                    oxy_atoms_new[2] -= chn_atoms_new[1] / 2; // O = O - H / 2
-                    chn_atoms_new[1] = 0; // H = 0
-                } else
-                {
-                    chnprod_moles[3] = oxy_atoms_new[2]; // _H2O = O
-                    chn_atoms_new[1] -= oxy_atoms_new[2] * 2; // H = H - 2 * O
-                    oxy_atoms_new[2] = 0; // O = 0
-                    chnprod_moles[4] = chn_atoms_new[1] / 2; // _H2 = H / 2;
-                    chn_atoms_new[1] = 0; // H = 0
                 }
                 
                 // CO2
@@ -511,10 +559,12 @@ namespace ExplProducts
                         s += "+" + chnprod_moles[i].ToString() + chnprod_names[i];
                 // out string
                 s = s.Replace("==>+", "==>");
+                s += "\nMолярная масса ВВ: " + Mvv;
                 outBox.Text = s;
                 #endregion
 
             #endregion
         }
+
     }
 }
