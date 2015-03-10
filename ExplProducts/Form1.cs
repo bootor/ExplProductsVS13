@@ -67,6 +67,35 @@ namespace ExplProducts
             return result;
         }
 
+        private void reactionPrint()
+        {
+            string s = "";
+            // atoms
+            for (int i = 0; i < chn_names.Length; i++)
+                if (chn_atoms[i] > 0)
+                    s += chn_names[i] + chn_atoms[i].ToString();
+            for (int i = 0; i < oxy_names.Length; i++)
+                if (oxy_atoms[i] > 0)
+                    s += oxy_names[i] + oxy_atoms[i].ToString();
+            for (int i = 0; i < metal_names.Length; i++)
+                if (metal_atoms[i] > 0)
+                    s += metal_names[i] + metal_atoms[i].ToString();
+            if (s.Length > 0)
+                s += "==>";
+            // products
+            for (int i = 0; i < oxy_names.Length; i++)
+                for (int j = 0; j < metal_names.Length; j++)
+                    if (prod_moles[i, j] > 0)
+                        s += "+" + prod_moles[i, j].ToString() + prod_names[i, j];
+            for (int i = 0; i < chnprod_moles.Length; i++)
+                if (chnprod_moles[i] > 0)
+                    s += "+" + chnprod_moles[i].ToString() + chnprod_names[i];
+            // out string
+            s = s.Replace("==>+", "==>");
+            s += "\nMолярная масса ВВ: " + Mvv;
+            outBox.Text = s;
+        }
+
         #region forms decimal input filtration
         private void textBoxC_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -534,36 +563,9 @@ namespace ExplProducts
                 chnprod_moles[5] = oxy_atoms_new[2] / 2; // _O2 = o / 2
                 oxy_atoms_new[2] = 0; // O = 0
                 #endregion
-
-                #region first oxydation print
-                string s = "";
-                // atoms
-                for (int i = 0; i < chn_names.Length; i++)
-                    if (chn_atoms[i] > 0)
-                        s += chn_names[i] + chn_atoms[i].ToString();
-                for (int i = 0; i < oxy_names.Length; i++)
-                    if (oxy_atoms[i] > 0)
-                        s += oxy_names[i] + oxy_atoms[i].ToString();
-                for (int i = 0; i < metal_names.Length; i++)
-                    if (metal_atoms[i] > 0)
-                        s += metal_names[i] + metal_atoms[i].ToString();
-                if (s.Length > 0)
-                    s += "==>";
-                // products
-                for (int i = 0; i < oxy_names.Length; i++)
-                    for (int j = 0; j < metal_names.Length; j++)
-                        if (prod_moles[i, j] > 0)
-                            s += "+" + prod_moles[i, j].ToString() + prod_names[i, j];
-                for (int i = 0; i < chnprod_moles.Length; i++)
-                    if (chnprod_moles[i] > 0)
-                        s += "+" + chnprod_moles[i].ToString() + chnprod_names[i];
-                // out string
-                s = s.Replace("==>+", "==>");
-                s += "\nMолярная масса ВВ: " + Mvv;
-                outBox.Text = s;
-                #endregion
-
             #endregion
+
+            reactionPrint();
         }
 
     }
