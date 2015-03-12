@@ -27,6 +27,10 @@ namespace ExplProducts
         private double[,] prod_mass;
         private string[,] prod_names;
         private double[,] prod_moles;
+
+        Dictionary<double, double>[] chnprod_cp;
+        Dictionary<double, double>[,] prod_cp;
+
         private double Qvv;
         private double Rovv;
         private double Dkr;
@@ -36,20 +40,84 @@ namespace ExplProducts
 
         private void loadData()
         {
+            #region variables first init
+            metal_names = new string[] { "K", "Ca", "Na", "Al", "P", "Si" };
+            metal_val = new int[] { 1, 2, 1, 3, 5, 4 };
+            metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            metal_mass = new double[] { 39.0983, 40.08, 22.98977, 26.98154, 30.97376, 28.086 };
+
+            chnprod_cp = new Dictionary<double, double>[6];
+            for (int i = 0; i < 6; i++ )
+                chnprod_cp[i] = new Dictionary<double, double>();
+            prod_cp = new Dictionary<double, double>[3,6];
+            for (int i = 0; i < 3; i++ )
+                for (int j = 0; i < 6; i++)
+                    prod_cp[i,j] = new Dictionary<double, double>();
+            
+            chn_names = new string[] { "C", "H", "N" };
+            chn_atoms = new double[] { 0.0, 0.0, 0.0 };
+            chn_mass = new double[] { 12.0108, 1.00795, 14.0067 };
+
+            oxy_names = new string[] { "F", "Cl", "O" };
+            oxy_val = new int[] { 1, 1, 2 };
+            oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
+            oxy_mass = new double[] { 18.9984, 35.453, 15.9994 };
+
+            prod_names = new string[,] { { "KF", "CaF2", "NaF", "AlF3", "PF5", "SiF4" }, 
+                                         { "KCl", "CaCl2", "NaCl", "AlCl3", "PCl5", "SiCl4" }, 
+                                         { "K2O", "CaO", "Na2O", "Al2O3", "P2O5", "SiO2" } };
+            prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+            prod_mass = new double[,] { { 58.0967, 78.0768, 41.98817, 83.97674, 125.96576, 104.0796 },
+                                        { 74.5513, 110.986, 58.44277, 133.34054, 208.23876, 169.898 },
+                                        { 94.196, 56.0794, 61.97894, 101.96128, 141.94452, 60.0848} };
+
+            chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
+            chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
+            #endregion
+
             string CurrDir = Directory.GetCurrentDirectory() + "\\";
             string dataDir = CurrDir + "data" + "\\";
             string[] dataFiles = Directory.GetFiles(dataDir);
             foreach (string _file in dataFiles)
             {
-                if (_file.Contains(".dat"))
+                for (int i = 0; i < chnprod_names.Length; i++)
                 {
-                    System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
-                    string line;
-                    while ((line = file.ReadLine()) != null)
+                    if (_file.Contains(chnprod_names[i] + ".dat"))
                     {
-                        // Do smth
+                        System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
+                        string line;
+                        string[] split = { };
+                        char[] filter = { ';' };
+                        while ((line = file.ReadLine()) != null)
+                        {
+                            split = line.Split(filter);
+                            double temp, cp;
+                            double.TryParse(split[0], out temp);
+                            double.TryParse(split[1], out cp);
+                            chnprod_cp[i].Add(temp, cp);
+                        }
                     }
                 }
+                for (int i = 0; i < oxy_names.Length; i++)
+                    for (int j = 0; j < metal_names.Length; i++)
+                        if (_file.Contains(prod_names[i,j] + ".dat"))
+                        {
+                            System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
+                            string line;
+                            string[] split = { };
+                            char[] filter = { ';' };
+                            while ((line = file.ReadLine()) != null)
+                            {
+                                split = line.Split(filter);
+                                double temp, cp;
+                                double.TryParse(split[0], out temp);
+                                double.TryParse(split[1], out cp);
+                                prod_cp[i,j].Add(temp, cp);
+                            }
+                        }
             }
         }
         
@@ -540,33 +608,15 @@ namespace ExplProducts
         
         private void buttonCalculation_Click(object sender, EventArgs e)
         {
-            metal_names = new string[] { "K", "Ca", "Na", "Al", "P", "Si" };
-            metal_val = new int[] { 1, 2, 1, 3, 5, 4 };
+            #region variables reset
             metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            metal_mass = new double[] { 39.0983, 40.08, 22.98977, 26.98154, 30.97376, 28.086};
-
-            chn_names = new string[] { "C", "H", "N" };
-            chn_atoms = new double[] { 0.0, 0.0, 0.0};
-            chn_mass = new double[] { 12.0108, 1.00795, 14.0067 };
-
-            oxy_names = new string[] { "F", "Cl", "O" };
-            oxy_val = new int[] { 1, 1, 2 };
+            chn_atoms = new double[] { 0.0, 0.0, 0.0 };
             oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
-            oxy_mass = new double[] { 18.9984, 35.453, 15.9994 };
-
-            prod_names = new string[,] { { "KF", "CaF2", "NaF", "AlF3", "PF5", "SiF4" }, 
-                                         { "KCl", "CaCl2", "NaCl", "AlCl3", "PCl5", "SiCl4" }, 
-                                         { "K2O", "CaO", "Na2O", "Al2O3", "P2O5", "SiO2" } };
             prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-            prod_mass = new double[,] { { 58.0967, 78.0768, 41.98817, 83.97674, 125.96576, 104.0796 },
-                                        { 74.5513, 110.986, 58.44277, 133.34054, 208.23876, 169.898 },
-                                        { 94.196, 56.0794, 61.97894, 101.96128, 141.94452, 60.0848} };
-            
-            chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
+            #endregion
 
             readDataFromFields();
             
