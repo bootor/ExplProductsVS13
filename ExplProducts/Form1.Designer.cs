@@ -468,6 +468,7 @@
             this.outBox.ReadOnly = true;
             this.outBox.Size = new System.Drawing.Size(332, 70);
             this.outBox.TabIndex = 19;
+            this.outBox.TabStop = false;
             this.outBox.Text = "";
             // 
             // groupBox3

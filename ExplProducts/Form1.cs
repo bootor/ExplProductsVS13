@@ -163,6 +163,8 @@ namespace ExplProducts
                 outBox.ForeColor = Color.Red;
                 outBox.Text = s;
                 buttonCalculation.Enabled = false;
+                buttonLoadData.Enabled = false;
+                buttonSaveData.Enabled = false;
             }
             #endregion
         }
