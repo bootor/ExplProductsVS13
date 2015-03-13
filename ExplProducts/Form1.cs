@@ -15,8 +15,8 @@ namespace ExplProducts
     {
         public Form1()
         {
-            //loadData();
             InitializeComponent();
+            loadData();
         }
 
         #region variables initialisation
@@ -36,6 +36,10 @@ namespace ExplProducts
         private double Dkr;
         private double Dvv;
         private double Mvv;
+
+        private bool alldata = true;
+        private string missing = "";
+            
         #endregion
 
         private void loadData()
@@ -46,12 +50,12 @@ namespace ExplProducts
             metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             metal_mass = new double[] { 39.0983, 40.08, 22.98977, 26.98154, 30.97376, 28.086 };
 
-            chnprod_cp = new Dictionary<double, double>[6];
-            for (int i = 0; i < 6; i++ )
+            chnprod_cp = new Dictionary<double, double>[7];
+            for (int i = 0; i < 7; i++ )
                 chnprod_cp[i] = new Dictionary<double, double>();
             prod_cp = new Dictionary<double, double>[3,6];
             for (int i = 0; i < 3; i++ )
-                for (int j = 0; i < 6; i++)
+                for (int j = 0; j < 6; j++)
                     prod_cp[i,j] = new Dictionary<double, double>();
             
             chn_names = new string[] { "C", "H", "N" };
@@ -76,51 +80,93 @@ namespace ExplProducts
             chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
+
+            System.IO.StreamReader file;
+            string line;
+            string[] split = { };
+            char[] filter = { ';' };
+            DirectoryInfo dataDir = new DirectoryInfo(Directory.GetCurrentDirectory() + "\\" + "data" + "\\");
+            FileInfo[] dataFiles = dataDir.GetFiles();
             #endregion
 
-            string CurrDir = Directory.GetCurrentDirectory() + "\\";
-            string dataDir = CurrDir + "data" + "\\";
-            string[] dataFiles = Directory.GetFiles(dataDir);
-            foreach (string _file in dataFiles)
+            #region check file exists
+            for (int i = 0; i < oxy_names.Length; i++)
+                for (int j = 0; j < metal_names.Length; j++ )
+                {
+                    alldata = false;
+                    foreach (FileInfo _file in dataFiles)
+                    {
+                        if (_file.Name.Equals(prod_names[i, j] + ".csv"))
+                        {
+                            alldata = true;
+                            break;
+                        }
+                    }
+                    if (!alldata)
+                    {
+                        missing += prod_names[i, j] + "; ";
+                    }
+                }
+            for (int i = 0; i < chnprod_names.Length; i++ )
+            {
+                alldata = false;
+                foreach (FileInfo _file in dataFiles)
+                {
+                    if (_file.Name.Equals(chnprod_names[i] + ".csv"))
+                    {
+                        alldata = true;
+                        break;
+                    }
+                }
+                if (!alldata)
+                {
+                    missing += chnprod_names[i] + "; ";
+                }
+            }
+            #endregion
+
+            #region load data from files
+            if (missing.Length == 0)
             {
                 for (int i = 0; i < chnprod_names.Length; i++)
                 {
-                    if (_file.Contains(chnprod_names[i] + ".dat"))
+                    file = new System.IO.StreamReader(dataDir + chnprod_names[i] + ".csv");
+                    while ((line = file.ReadLine()) != null)
                     {
-                        System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
-                        string line;
-                        string[] split = { };
-                        char[] filter = { ';' };
+                        split = line.Split(filter);
+                        double temp = 0;
+                        double cp = 0;
+                        double.TryParse(split[0], out temp);
+                        double.TryParse(split[1], out cp);
+                        chnprod_cp[i].Add(temp, cp);
+                    }
+                }
+                for (int i = 0; i < oxy_names.Length; i++)
+                    for (int j = 0; j < metal_names.Length; j++)
+                    {
+                        file = new System.IO.StreamReader(dataDir + prod_names[i, j] + ".csv");
                         while ((line = file.ReadLine()) != null)
                         {
                             split = line.Split(filter);
                             double temp, cp;
                             double.TryParse(split[0], out temp);
                             double.TryParse(split[1], out cp);
-                            chnprod_cp[i].Add(temp, cp);
+                            prod_cp[i, j].Add(temp, cp);
                         }
                     }
-                }
-                for (int i = 0; i < oxy_names.Length; i++)
-                    for (int j = 0; j < metal_names.Length; i++)
-                        if (_file.Contains(prod_names[i,j] + ".dat"))
-                        {
-                            System.IO.StreamReader file = new System.IO.StreamReader(dataDir + _file);
-                            string line;
-                            string[] split = { };
-                            char[] filter = { ';' };
-                            while ((line = file.ReadLine()) != null)
-                            {
-                                split = line.Split(filter);
-                                double temp, cp;
-                                double.TryParse(split[0], out temp);
-                                double.TryParse(split[1], out cp);
-                                prod_cp[i,j].Add(temp, cp);
-                            }
-                        }
+            } else
+            {
+                string s = "Нет справочных данных по следующим продуктам: ";
+                for (int i = 0; i < missing.Length - 2; i++)
+                    s += missing[i];
+                s += "\nРасчет невозможен. Обратитесь за справкой к разработчику.";
+                outBox.ForeColor = Color.Red;
+                outBox.Text = s;
+                buttonCalculation.Enabled = false;
             }
+            #endregion
         }
-        
+
         private void readDataFromFields()
         {
             double number = 0.0;
@@ -191,6 +237,7 @@ namespace ExplProducts
                 Dvv = number;
             }
         }
+
 
         private void firstOxydation()
         {
@@ -608,24 +655,27 @@ namespace ExplProducts
         
         private void buttonCalculation_Click(object sender, EventArgs e)
         {
-            #region variables reset
-            metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            chn_atoms = new double[] { 0.0, 0.0, 0.0 };
-            oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
-            prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+            if (missing.Length == 0)
+            {
+
+                #region variables reset
+                metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                chn_atoms = new double[] { 0.0, 0.0, 0.0 };
+                oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
+                prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-            chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            #endregion
+                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                #endregion
 
-            readDataFromFields();
-            
-            Mvv = calcMass();
+                readDataFromFields();
 
-            firstOxydation();
+                Mvv = calcMass();
 
-            reactionPrint();
+                firstOxydation();
+
+                reactionPrint();
+            }
         }
-
     }
 }
