@@ -409,6 +409,17 @@ namespace ExplProducts
             return 0.0;
         }
 
+        private double solve_Qv(double[,] prod, double[] chnprod)
+        {
+            double q = 0.0;
+            for (int i = 0; i < oxy_names.Length; i++)
+                for (int j = 0; j < metal_names.Length; j++)
+                    q += prod[i, j] * prod_qi[i, j];
+            for (int i = 0; i < chnprod_names.Length; i++)
+                q += chnprod[i] * chnprod_qi[i];
+            return q - Qvv;
+        }
+
         private void reactionPrint()
         {
             string s = "";
@@ -734,6 +745,10 @@ namespace ExplProducts
                 firstOxydation();
 
                 reactionPrint();
+
+                double Q = solve_Qv(prod_moles, chnprod_moles);
+
+                outBox.Text += Q.ToString("##.##");
             }
         }
     }
