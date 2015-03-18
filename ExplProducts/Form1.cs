@@ -23,8 +23,8 @@ namespace ExplProducts
         private string[] metal_names, oxy_names, chn_names, chnprod_names;
         private int[] metal_val, oxy_val;
         private double[] metal_atoms, oxy_atoms, chn_atoms, metal_atoms_new, oxy_atoms_new, chn_atoms_new, chnprod_moles;
-        private double[] metal_mass, chn_mass, oxy_mass, chnprod_mass;
-        private double[,] prod_mass;
+        private double[] metal_mass, chn_mass, oxy_mass, chnprod_mass,chnprod_qi;
+        private double[,] prod_mass,prod_qi;
         private string[,] prod_names;
         private double[,] prod_moles;
 
@@ -73,13 +73,17 @@ namespace ExplProducts
             prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-            prod_mass = new double[,] { { 58.0967, 78.0768, 41.98817, 83.97674, 125.96576, 104.0796 },
-                                        { 74.5513, 110.986, 58.44277, 133.34054, 208.23876, 169.898 },
-                                        { 94.196, 56.0794, 61.97894, 101.96128, 141.94452, 60.0848} };
+            prod_mass =  new double[,] { { 58.0967, 78.0768, 41.98817, 83.97674, 125.96576, 104.0796 },
+                                         { 74.5513, 110.986, 58.44277, 133.34054, 208.23876, 169.898 },
+                                         { 94.196, 56.0794, 61.97894, 101.96128, 141.94452, 60.0848} };
+            prod_qi =    new double[,] { { 569.9, 1228.0, 576.6, 1510.4, 1593, 1614.9 }, 
+                                         { 437.02, 796.18, 410.4, 584.1, 366.9, 687.8 }, 
+                                         { 363.6, 635.85, 418.4, 1677.5, 0.0, 910.7 } };
 
             chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            chnprod_mass = new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
+            chnprod_mass =  new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
+            chnprod_qi =    new double[] { 393.7, 113.86, 0.0, 241.91, 0.0, 0.0, 0.0};
 
             System.IO.StreamReader file;
             string line;
@@ -240,7 +244,6 @@ namespace ExplProducts
             }
         }
 
-
         private void firstOxydation()
         {
             #region atoms copy
@@ -352,6 +355,60 @@ namespace ExplProducts
             return result;
         }
 
+        private double get_cp(string prodName, double temp)
+        {
+            int i = -1, j = -1;
+            for (int q = 0; q < chnprod_names.Length; q++ )
+            { 
+                if (prodName.Equals(chnprod_names[q]))
+                {
+                    i = q;
+                    break;
+                }
+            }
+            for (int q = 0; q < oxy_names.Length; q++)
+                for (int m = 0; m < metal_names.Length; m++)
+                {
+                    if (prodName.Equals(prod_names[q, m]))
+                    {
+                        i = q;
+                        j = m;
+                        break;
+                    }
+                }
+
+            double[] keys = new double[70];
+            double[] values = new double[70];
+            if (j > -1) // in prod
+            {
+                //prod_cp[i,j]
+                prod_cp[i, j].Keys.CopyTo(keys, 0);
+                prod_cp[i, j].Values.CopyTo(values, 0);
+            }
+            else // in chnprod
+            {
+                //chnprod_cp[i]
+                chnprod_cp[i].Keys.CopyTo(keys, 0);
+                chnprod_cp[i].Values.CopyTo(values, 0);
+            }
+            double t1 = keys[0], t2 = keys[0];
+            for (i = 1; i < 70; i++ )
+            {
+                if (keys[i] > keys[i - 1])
+                {
+                    t2 = keys[i];
+                    t1 = keys[i - 1];
+                    if (t2 > temp)
+                        return values[i - 1] + (temp - t1) * (values[i] - values[i - 1]) / (t2 - t1);
+                } else
+                {
+                    return values[i];
+                }
+            }
+
+            return 0.0;
+        }
+
         private void reactionPrint()
         {
             string s = "";
@@ -377,8 +434,8 @@ namespace ExplProducts
                     s += "+" + chnprod_moles[i].ToString() + chnprod_names[i];
             // out string
             s = s.Replace("==>+", "==>");
-            s += "\nMолярная масса ВВ: " + Mvv;
-            outBox.Text = s;
+            s += "\nMолярная масса ВВ: " + Mvv + "\n";
+            outBox.Text += s;
         }
 
         #region forms decimal input filtration
