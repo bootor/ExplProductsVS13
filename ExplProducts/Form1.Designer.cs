@@ -70,6 +70,8 @@
             this.buttonCalculation = new System.Windows.Forms.Button();
             this.outBox = new System.Windows.Forms.RichTextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -332,6 +334,7 @@
             this.buttonLoadData.TabIndex = 17;
             this.buttonLoadData.Text = "Загрузить";
             this.buttonLoadData.UseVisualStyleBackColor = true;
+            this.buttonLoadData.Click += new System.EventHandler(this.buttonLoadData_Click);
             // 
             // buttonSaveData
             // 
@@ -341,6 +344,7 @@
             this.buttonSaveData.TabIndex = 18;
             this.buttonSaveData.Text = "Сохранить";
             this.buttonSaveData.UseVisualStyleBackColor = true;
+            this.buttonSaveData.Click += new System.EventHandler(this.buttonSaveData_Click);
             // 
             // groupBox2
             // 
@@ -481,6 +485,16 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Реакция взрывчатого превращения";
             // 
+            // openFileDialog
+            // 
+            this.openFileDialog.DefaultExt = "txt";
+            this.openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "txt";
+            this.saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -551,6 +565,8 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.RichTextBox outBox;
         private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
 

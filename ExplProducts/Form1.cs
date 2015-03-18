@@ -751,5 +751,88 @@ namespace ExplProducts
                 outBox.Text += Q.ToString("##.##");
             }
         }
+
+        private void buttonLoadData_Click(object sender, EventArgs e)
+        {
+            System.IO.StreamReader file;
+            openFileDialog.InitialDirectory = Directory.GetCurrentDirectory() + "\\" + "save";
+            DialogResult loadresult = openFileDialog.ShowDialog(); // Show the dialog.
+            if (loadresult == DialogResult.OK) // Test result.
+            {
+                try
+                {
+                    file = new System.IO.StreamReader(openFileDialog.FileName);
+                    List<string> lines = new List<string>();
+                    string line = "";
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        lines.Add(line);
+                    }
+                    if (lines.Count < 17)
+                    {
+                        outBox.Text = "Incorrect file format.";
+                    }
+                    else
+                    {
+                        textBoxC.Text = lines[0];
+                        textBoxH.Text = lines[1];
+                        textBoxN.Text = lines[2];
+                        textBoxO.Text = lines[3];
+                        textBoxCl.Text = lines[4];
+                        textBoxF.Text = lines[5];
+                        textBoxK.Text = lines[6];
+                        textBoxCa.Text = lines[7];
+                        textBoxNa.Text = lines[8];
+                        textBoxAl.Text = lines[9];
+                        textBoxP.Text = lines[10];
+                        textBoxSi.Text = lines[11];
+                        textBoxQvv.Text = lines[12];
+                        textBoxMaxRo.Text = lines[13];
+                        textBoxRovv.Text = lines[14];
+                        textBoxDkr.Text = lines[15];
+                        textBoxDvv.Text = lines[16];
+                    }
+                    file.Close();
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
+
+        private void buttonSaveData_Click(object sender, EventArgs e)
+        {
+            saveFileDialog.InitialDirectory = Directory.GetCurrentDirectory() + "\\" + "save";
+            DialogResult writeresult = saveFileDialog.ShowDialog();
+            if (writeresult == DialogResult.OK) // Test result.
+            {
+                try
+                {
+                    string name = saveFileDialog.FileName;
+                    string[] lines = new string[17];
+                    lines[0] = textBoxC.Text;
+                    lines[1] = textBoxH.Text;
+                    lines[2] = textBoxN.Text;
+                    lines[3] = textBoxO.Text;
+                    lines[4] = textBoxCl.Text;
+                    lines[5] = textBoxF.Text;
+                    lines[6] = textBoxK.Text;
+                    lines[7] = textBoxCa.Text;
+                    lines[8] = textBoxNa.Text;
+                    lines[9] = textBoxAl.Text;
+                    lines[10] = textBoxP.Text;
+                    lines[11] = textBoxSi.Text;
+                    lines[12] = textBoxQvv.Text;
+                    lines[13] = textBoxMaxRo.Text;
+                    lines[14] = textBoxRovv.Text;
+                    lines[15] = textBoxDkr.Text;
+                    lines[16] = textBoxDvv.Text;
+                    File.WriteAllLines(name, lines);
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
     }
 }
