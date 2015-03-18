@@ -439,13 +439,13 @@ namespace ExplProducts
             for (int i = 0; i < oxy_names.Length; i++)
                 for (int j = 0; j < metal_names.Length; j++)
                     if (prod_moles[i, j] > 0)
-                        s += "+" + prod_moles[i, j].ToString() + prod_names[i, j];
+                        s += "+" + prod_moles[i, j].ToString("##.####") + prod_names[i, j];
             for (int i = 0; i < chnprod_moles.Length; i++)
                 if (chnprod_moles[i] > 0)
-                    s += "+" + chnprod_moles[i].ToString() + chnprod_names[i];
+                    s += "+" + chnprod_moles[i].ToString("##.####") + chnprod_names[i];
             // out string
             s = s.Replace("==>+", "==>");
-            s += "\nMолярная масса ВВ: " + Mvv + "\n";
+            s += "\nMолярная масса ВВ: " + Mvv.ToString("##.####") + " кг/кМоль\n";
             outBox.Text += s;
         }
 
@@ -722,35 +722,6 @@ namespace ExplProducts
             }
         }
         #endregion
-        
-        private void buttonCalculation_Click(object sender, EventArgs e)
-        {
-            if (missing.Length == 0)
-            {
-
-                #region variables reset
-                metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                chn_atoms = new double[] { 0.0, 0.0, 0.0 };
-                oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
-                prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                #endregion
-
-                readDataFromFields();
-
-                Mvv = calcMass();
-
-                firstOxydation();
-
-                reactionPrint();
-
-                double Q = solve_Qv(prod_moles, chnprod_moles);
-
-                outBox.Text += Q.ToString("##.##");
-            }
-        }
 
         private void buttonLoadData_Click(object sender, EventArgs e)
         {
@@ -832,6 +803,35 @@ namespace ExplProducts
                 catch (IOException)
                 {
                 }
+            }
+        }
+        
+        private void buttonCalculation_Click(object sender, EventArgs e)
+        {
+            if (missing.Length == 0)
+            {
+
+                #region variables reset
+                metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                chn_atoms = new double[] { 0.0, 0.0, 0.0 };
+                oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
+                prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                #endregion
+
+                readDataFromFields();
+
+                Mvv = calcMass();
+
+                firstOxydation();
+
+                reactionPrint();
+
+                double Q = solve_Qv(prod_moles, chnprod_moles);
+
+                outBox.Text += "Теплота взрыва: " + Q.ToString("##.##") + " кДж/кг\n";
             }
         }
     }

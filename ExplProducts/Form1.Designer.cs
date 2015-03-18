@@ -470,7 +470,7 @@
             this.outBox.Location = new System.Drawing.Point(9, 13);
             this.outBox.Name = "outBox";
             this.outBox.ReadOnly = true;
-            this.outBox.Size = new System.Drawing.Size(332, 70);
+            this.outBox.Size = new System.Drawing.Size(332, 157);
             this.outBox.TabIndex = 19;
             this.outBox.TabStop = false;
             this.outBox.Text = "";
@@ -480,7 +480,7 @@
             this.groupBox3.Controls.Add(this.outBox);
             this.groupBox3.Location = new System.Drawing.Point(129, 164);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(347, 87);
+            this.groupBox3.Size = new System.Drawing.Size(347, 176);
             this.groupBox3.TabIndex = 20;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Реакция взрывчатого превращения";
