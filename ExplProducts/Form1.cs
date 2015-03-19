@@ -148,6 +148,7 @@ namespace ExplProducts
                         double.TryParse(split[1], out cp);
                         chnprod_cp[i].Add(temp, cp - 8.3143 * chnprod_gases[i]);
                     }
+                    file.Close();
                 }
                 for (int i = 0; i < oxy_names.Length; i++)
                     for (int j = 0; j < metal_names.Length; j++)
@@ -161,6 +162,7 @@ namespace ExplProducts
                             double.TryParse(split[1], out cp);
                             prod_cp[i, j].Add(temp, cp);
                         }
+                        file.Close();
                     }
             } else
             {
@@ -438,7 +440,7 @@ namespace ExplProducts
         {
             //double delta = 1000000000;
             // { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
-            for (int t = 600; t < 6000; t++ )
+            for (int t = 300; t < 6000; t++ )
             {
                 double Qcp = 0.0;
                 for (int i = 0; i < oxy_names.Length; i++)
@@ -482,6 +484,7 @@ namespace ExplProducts
                     s += "+" + chnprod_moles[i].ToString("##.####") + chnprod_names[i];
             // out string
             s = s.Replace("==>+", "==>");
+            s = "Реакция взрывчатого превращения:\n" + s;
             s += "\n";
             outBox.Text += s;
         }
@@ -865,7 +868,7 @@ namespace ExplProducts
 
                 firstOxydation();
 
-                reactionPrint();
+                //reactionPrint();
 
                 double Q = 0.0;
                 double Qcorr = 0.0;
@@ -891,6 +894,7 @@ namespace ExplProducts
                     {
                         Qcorr = Q;
                         correction = false;
+                        reactionPrint();
                         break;
                     }
 
@@ -898,9 +902,32 @@ namespace ExplProducts
 
                 if (correction)
                     reactionPrint();
-                outBox.Text += "Mолярная масса ВВ: " + Mvv.ToString("##.####") + " кг/кМоль\n";
+                //outBox.Text += "Mолярная масса ВВ: " + Mvv.ToString("##.####") + " кг/кМоль\n";
+                outBox.Text += "\n";
                 outBox.Text += "Теплота взрыва: " + Qcorr.ToString("##.##") + " кДж/кг\n";
                 outBox.Text += "Температура взрыва: " + T.ToString("##.##") + " К\n";
+
+                double Npr = 0.0; // Продукты взрыва, моль
+                for (int i = 0; i < chnprod_moles.Length; i++ )
+                {
+                    Npr += chnprod_moles[i] * chnprod_gases[i];
+                }
+                double n = Npr / Mvv; // Продукты взрыва, моль/кг
+                double V = Npr * 22.4; // Обхем гадов взрыва, л
+                double eps = 0.0; // Твердые компоненты, моль/кг
+                for (int i = 0; i < oxy_names.Length; i++ )
+                    for (int j = 0; j < metal_names.Length; j++ )
+                    {
+                        eps += prod_moles[i, j] * prod_mass[i, j];
+                    }
+                for (int i = 0; i < chnprod_names.Length; i++)
+                    eps -= chnprod_moles[i] * chnprod_mass[i] * (chnprod_gases[i] - 1);
+                eps /= Mvv;
+                double D = Math.Sqrt(1 - eps) * (0.314 * Math.Sqrt(n * T) * Rovv + 1.95) * 1000; // Скорость детонации
+                D *= (1 - Dkr / Dvv); // Скорость детонации в диаметре
+
+                outBox.Text += "Объем газов взрыва: " + V.ToString("##.##") + " л/кг\n";
+                outBox.Text += "Скорость детонации ВВ: " + D.ToString("##.##") + " м/с\n";
             }
         }
     }

@@ -483,7 +483,7 @@
             this.groupBox3.Size = new System.Drawing.Size(347, 176);
             this.groupBox3.TabIndex = 20;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Реакция взрывчатого превращения";
+            this.groupBox3.Text = "Результаты расчета";
             // 
             // openFileDialog
             // 
