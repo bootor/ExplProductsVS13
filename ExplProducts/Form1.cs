@@ -145,7 +145,9 @@ namespace ExplProducts
                         double temp = 0;
                         double cp = 0;
                         double.TryParse(split[0], out temp);
+                        //temp = double.Parse(split[0], System.Globalization.CultureInfo.InvariantCulture);
                         double.TryParse(split[1], out cp);
+                        //cp = double.Parse(split[1], System.Globalization.CultureInfo.InvariantCulture);
                         chnprod_cp[i].Add(temp, cp - 8.3143 * chnprod_gases[i]);
                     }
                     file.Close();
@@ -159,7 +161,9 @@ namespace ExplProducts
                             split = line.Split(filter);
                             double temp, cp;
                             double.TryParse(split[0], out temp);
+                            //temp = double.Parse(split[0], System.Globalization.CultureInfo.InvariantCulture);
                             double.TryParse(split[1], out cp);
+                            //cp = double.Parse(split[1], System.Globalization.CultureInfo.InvariantCulture);
                             prod_cp[i, j].Add(temp, cp);
                         }
                         file.Close();
@@ -183,6 +187,8 @@ namespace ExplProducts
         {
             double number = 0.0;
             // atoms parsing
+            //chn_atoms[0] = double.Parse(textBoxC.Text, System.Globalization.CultureInfo.InvariantCulture);
+            
             if (double.TryParse(textBoxC.Text, out number))
             {
                 chn_atoms[0] = number;
@@ -251,6 +257,7 @@ namespace ExplProducts
         }
 
         private void firstOxydation()
+
         {
             #region atoms copy
             metal_atoms_new = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -283,7 +290,7 @@ namespace ExplProducts
                     }
                     else
                     {
-                        prod_moles[i, j] = oxy_atoms_new[i];
+                        prod_moles[i, j] = oxy_atoms_new[i] * oxy_val[i] /metal_val[j];
                         metal_atoms_new[j] -= oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
                         oxy_atoms_new[i] = 0;
                     }
@@ -897,7 +904,7 @@ namespace ExplProducts
                         reactionPrint();
                         break;
                     }
-
+                    
                 } while ((Q - Qcorr) / Q > 0.001);
 
                 if (correction)
