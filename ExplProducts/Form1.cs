@@ -24,10 +24,10 @@ namespace ExplProducts
         private int[] metal_val, oxy_val, chnprod_gases;
         private double[] metal_atoms, oxy_atoms, chn_atoms, metal_atoms_new, oxy_atoms_new, chn_atoms_new, chnprod_moles;
         private double[] metal_mass, chn_mass, oxy_mass, chnprod_mass,chnprod_qi;
-        private double[,] prod_mass,prod_qi;
+        private double[,] prod_mass,prod_qi,prod_coeff,prod_dens;
         private string[,] prod_names;
         private double[,] prod_moles;
-
+        
         Dictionary<double, double>[] chnprod_cp;
         Dictionary<double, double>[,] prod_cp;
 
@@ -52,8 +52,8 @@ namespace ExplProducts
             metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             metal_mass = new double[] { 39.0983, 22.98977, 40.08, 26.98154, 28.086, 30.97376 };
 
-            chnprod_cp = new Dictionary<double, double>[7];
-            for (int i = 0; i < 7; i++ )
+            chnprod_cp = new Dictionary<double, double>[9];
+            for (int i = 0; i < 9; i++ )
                 chnprod_cp[i] = new Dictionary<double, double>();
             prod_cp = new Dictionary<double, double>[3,6];
             for (int i = 0; i < 3; i++ )
@@ -75,20 +75,27 @@ namespace ExplProducts
             prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+            prod_coeff = new double[,] { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
+                                         { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
+                                         { 0.5, 0.5, 1.0, 0.5, 1.0, 0.5 } };
             prod_mass =  new double[,] { { 58.0967, 41.98817, 78.0768, 83.97674, 104.0796, 125.96576 },
                                          { 74.5513, 58.44277, 110.986, 133.34054, 169.898, 208.23876 },
                                          { 94.196, 61.97894, 56.0794, 101.96128, 60.0848, 141.94452} };
             prod_qi =    new double[,] { { 569.9, 576.6, 1228.0, 1510.4, 1614.9, 1593 }, 
                                          { 437.02, 410.4, 796.18, 584.1, 687.8, 366.9 }, 
                                          { 363.6, 418.4, 635.85, 1677.5, 910.7, 1124.371 } };
+            prod_dens  = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 1.98, 2.165, 2.15, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 2.39, 3.37, 3.65, 0.0, 2.39 } };
 
-            chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2" };
-            chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            chnprod_mass =  new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134 };
-            chnprod_qi =    new double[] { 393.7, 113.86, 0.0, 241.91, 0.0, 0.0, 0.0};
-            chnprod_gases =    new int[] { 1, 1, 0, 1, 1, 1, 1 };
+            chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2", "HF", "HCl" };
+            chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            chnprod_mass =  new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134, 20.00635, 36.46095 };
+            chnprod_qi =    new double[] { 393.7, 113.86, 0.0, 241.91, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            chnprod_gases =    new int[] { 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
-
+            
+            
             System.IO.StreamReader file;
             string line;
             string[] split = { };
@@ -284,18 +291,31 @@ namespace ExplProducts
                 {
                     if (oxy_atoms_new[i] * oxy_val[i] >= metal_atoms_new[j] * metal_val[j])
                     {
-                        prod_moles[i, j] = metal_atoms_new[j] * metal_val[j] / oxy_val[i];
-                        oxy_atoms_new[i] -= metal_atoms_new[j] * metal_val[j] / oxy_val[i];
-                        metal_atoms_new[j] = 0;
+                        if ((oxy_val[i] < 2 && metal_val[j] < 3) || (oxy_val[i] > 1))
+                        {
+                            prod_moles[i, j] = prod_coeff[i, j] * metal_atoms_new[j];
+                            oxy_atoms_new[i] -= metal_atoms_new[j] * metal_val[j] / oxy_val[i];
+                            metal_atoms_new[j] = 0;
+                        }
                     }
                     else
                     {
-                        prod_moles[i, j] = oxy_atoms_new[i] * oxy_val[i] /metal_val[j];
-                        metal_atoms_new[j] -= oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
-                        oxy_atoms_new[i] = 0;
+                        if ((oxy_val[i] < 2 && metal_val[j] < 3) || (oxy_val[i] > 1))
+                        {
+                            prod_moles[i, j] = prod_coeff[i, j] * oxy_atoms_new[i] * oxy_val[i] / metal_val[j];
+                            metal_atoms_new[j] -= prod_moles[i, j] / prod_coeff[i, j];
+                            oxy_atoms_new[i] = 0;
+                        }
                     }
                 }
             }
+            #endregion
+
+            #region F Cl to HF HCl
+            chnprod_moles[7] = oxy_atoms_new[0]; // HF
+            chn_atoms_new[2] -= oxy_atoms_new[0];
+            chnprod_moles[8] = oxy_atoms_new[1]; // HCl
+            chn_atoms_new[2] -= oxy_atoms_new[1];
             #endregion
 
             cho[0] = chn_atoms_new[0];
@@ -434,6 +454,7 @@ namespace ExplProducts
                     q += prod_moles[i, j] * prod_qi[i, j];
             for (int i = 0; i < chnprod_names.Length; i++)
                 q += chnprod_moles[i] * chnprod_qi[i];
+
             return q - Qvv;
         }
 
@@ -441,6 +462,62 @@ namespace ExplProducts
         {
             return 1.2283211732e-13 * Math.Pow(t, 4) - 1.3708704872e-9 * Math.Pow(t, 3) 
                    + 4.8180203745e-6 * Math.Pow(t, 2) - 0.0030257287278 * t + 0.321160182936;
+        }
+
+        private double getB(string prod, double T)
+        {
+            //chnprod { "CO2", "CO", "C", "H2O", "H2", "O2", "N2", "HF", "HCl" };
+            if (prod == "CO2")
+                return 37.0;
+            else if (prod == "CO")
+                return 33.0;
+            else if (prod == "C")
+                return 0.0;
+            else if (prod == "H2O")
+                return 7.9;
+            else if (prod == "H2")
+                return 34.0;
+            else if (prod == "O2")
+                return 34.0;
+            else if (prod == "N2")
+                return 34.0;
+            else if (prod == "HF")
+                return 0.0;
+            else if (prod == "HCl")
+                return 0.0;
+            else
+                return 0.0;
+        }
+
+        private double getG(double T)
+        {
+            double Vkg = 1000 / Rovv; // Объем 1 кг ВВ
+
+            double alpha = 0.0; // Объем конденсированной фазы, см3
+            for (int i = 0; i < oxy_names.Length; i++)
+                for (int j = 0; j < metal_names.Length; j++)
+                {
+                    alpha += prod_moles[i, j] * prod_mass[i, j] / prod_dens[i, j];
+                }
+
+            double Vg = Vkg - alpha; // Объем занимаемый газами взрыва, см3
+            double GasDolya = 1 - alpha * Rovv / 1000; // Доля объема, занимаемая газами
+
+            double b = 0; // Второй вириальный коэффициент
+            for (int i = 0; i < chnprod_names.Length; i++ )
+            {
+                b += chnprod_moles[i] * getB(chnprod_names[i], T);
+            }
+
+            double x1 = b / Vg;
+            double Npr = 0.0; // Продукты взрыва, моль
+                for (int i = 0; i < chnprod_moles.Length; i++ )
+                {
+                    Npr += chnprod_moles[i] * chnprod_gases[i];
+                }
+            double logG = 4.38 * Npr * GasDolya * (x1 + 0.625 * Math.Pow(x1, 2) 
+                          + 0.287 * Math.Pow(x1, 3) + 0.193 * Math.Pow(x1, 4)) / b;
+            return Math.Pow(10, logG);
         }
 
         private double foundT(double q)
@@ -866,7 +943,7 @@ namespace ExplProducts
                 prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
                                          { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
                 #endregion
 
                 readDataFromFields();
@@ -888,6 +965,7 @@ namespace ExplProducts
                     if (chnprod_moles[1] > 0 || chnprod_moles[4] > 0)
                     {
                         double kvg = getKvg(T);
+                        //kvg *= getG(T);
                         double M = cho[1] / 2 - cho[2] + cho[0];
                         double R = cho[2] - cho[0];
                         double A = (kvg * M + cho[2]) / (2 * (kvg - 1));
@@ -909,7 +987,6 @@ namespace ExplProducts
 
                 if (correction)
                     reactionPrint();
-                //outBox.Text += "Mолярная масса ВВ: " + Mvv.ToString("##.####") + " кг/кМоль\n";
                 outBox.Text += "\n";
                 outBox.Text += "Теплота взрыва: " + Qcorr.ToString("##.##") + " кДж/кг\n";
                 outBox.Text += "Температура взрыва: " + T.ToString("##.##") + " К\n";
@@ -933,6 +1010,9 @@ namespace ExplProducts
                 double D = Math.Sqrt(1 - eps) * (0.314 * Math.Sqrt(n * T) * Rovv + 1.95) * 1000; // Скорость детонации
                 D *= (1 - Dkr / Dvv); // Скорость детонации в диаметре
 
+                outBox.Text += "Масса брутто-формулы ВВ: " + Mvv.ToString("##.####") + " г\n";
+                outBox.Text += "Продукты взрыва ВВ: " + Npr.ToString("##.####") + " моль\n";
+                outBox.Text += "Твердые компоненты ВВ: " + (eps * Mvv).ToString("##.####") + " моль/кг\n";
                 outBox.Text += "Объем газов взрыва: " + V.ToString("##.##") + " л/кг\n";
                 outBox.Text += "Скорость детонации ВВ: " + D.ToString("##.##") + " м/с\n";
             }
