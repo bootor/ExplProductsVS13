@@ -123,14 +123,14 @@
             this.groupBox1.Controls.Add(this.labelC);
             this.groupBox1.Location = new System.Drawing.Point(12, 8);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(107, 332);
+            this.groupBox1.Size = new System.Drawing.Size(208, 223);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Брутто-формула";
             // 
             // textBoxSi
             // 
-            this.textBoxSi.Location = new System.Drawing.Point(26, 301);
+            this.textBoxSi.Location = new System.Drawing.Point(130, 93);
             this.textBoxSi.Name = "textBoxSi";
             this.textBoxSi.Size = new System.Drawing.Size(69, 20);
             this.textBoxSi.TabIndex = 11;
@@ -140,7 +140,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 304);
+            this.label7.Location = new System.Drawing.Point(110, 96);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(16, 13);
             this.label7.TabIndex = 23;
@@ -148,7 +148,7 @@
             // 
             // textBoxP
             // 
-            this.textBoxP.Location = new System.Drawing.Point(26, 275);
+            this.textBoxP.Location = new System.Drawing.Point(130, 67);
             this.textBoxP.Name = "textBoxP";
             this.textBoxP.Size = new System.Drawing.Size(69, 20);
             this.textBoxP.TabIndex = 10;
@@ -158,7 +158,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 278);
+            this.label8.Location = new System.Drawing.Point(110, 70);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(14, 13);
             this.label8.TabIndex = 22;
@@ -166,7 +166,7 @@
             // 
             // textBoxAl
             // 
-            this.textBoxAl.Location = new System.Drawing.Point(26, 249);
+            this.textBoxAl.Location = new System.Drawing.Point(130, 41);
             this.textBoxAl.Name = "textBoxAl";
             this.textBoxAl.Size = new System.Drawing.Size(69, 20);
             this.textBoxAl.TabIndex = 9;
@@ -176,7 +176,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 252);
+            this.label6.Location = new System.Drawing.Point(110, 44);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(16, 13);
             this.label6.TabIndex = 19;
@@ -184,7 +184,7 @@
             // 
             // textBoxNa
             // 
-            this.textBoxNa.Location = new System.Drawing.Point(26, 223);
+            this.textBoxNa.Location = new System.Drawing.Point(130, 15);
             this.textBoxNa.Name = "textBoxNa";
             this.textBoxNa.Size = new System.Drawing.Size(69, 20);
             this.textBoxNa.TabIndex = 8;
@@ -194,7 +194,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 226);
+            this.label5.Location = new System.Drawing.Point(110, 18);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(21, 13);
             this.label5.TabIndex = 17;
@@ -328,9 +328,9 @@
             // 
             // buttonLoadData
             // 
-            this.buttonLoadData.Location = new System.Drawing.Point(405, 105);
+            this.buttonLoadData.Location = new System.Drawing.Point(348, 165);
             this.buttonLoadData.Name = "buttonLoadData";
-            this.buttonLoadData.Size = new System.Drawing.Size(75, 23);
+            this.buttonLoadData.Size = new System.Drawing.Size(71, 23);
             this.buttonLoadData.TabIndex = 17;
             this.buttonLoadData.Text = "Загрузить";
             this.buttonLoadData.UseVisualStyleBackColor = true;
@@ -338,9 +338,9 @@
             // 
             // buttonSaveData
             // 
-            this.buttonSaveData.Location = new System.Drawing.Point(405, 134);
+            this.buttonSaveData.Location = new System.Drawing.Point(425, 165);
             this.buttonSaveData.Name = "buttonSaveData";
-            this.buttonSaveData.Size = new System.Drawing.Size(75, 23);
+            this.buttonSaveData.Size = new System.Drawing.Size(71, 23);
             this.buttonSaveData.TabIndex = 18;
             this.buttonSaveData.Text = "Сохранить";
             this.buttonSaveData.UseVisualStyleBackColor = true;
@@ -358,7 +358,7 @@
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.textBoxQvv);
             this.groupBox2.Controls.Add(this.label9);
-            this.groupBox2.Location = new System.Drawing.Point(129, 8);
+            this.groupBox2.Location = new System.Drawing.Point(226, 8);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(270, 148);
             this.groupBox2.TabIndex = 1;
@@ -457,9 +457,9 @@
             // 
             // buttonCalculation
             // 
-            this.buttonCalculation.Location = new System.Drawing.Point(405, 13);
+            this.buttonCalculation.Location = new System.Drawing.Point(226, 165);
             this.buttonCalculation.Name = "buttonCalculation";
-            this.buttonCalculation.Size = new System.Drawing.Size(75, 46);
+            this.buttonCalculation.Size = new System.Drawing.Size(71, 66);
             this.buttonCalculation.TabIndex = 16;
             this.buttonCalculation.Text = "Расчет";
             this.buttonCalculation.UseVisualStyleBackColor = true;
@@ -467,10 +467,10 @@
             // 
             // outBox
             // 
-            this.outBox.Location = new System.Drawing.Point(9, 13);
+            this.outBox.Location = new System.Drawing.Point(6, 19);
             this.outBox.Name = "outBox";
             this.outBox.ReadOnly = true;
-            this.outBox.Size = new System.Drawing.Size(332, 157);
+            this.outBox.Size = new System.Drawing.Size(472, 173);
             this.outBox.TabIndex = 19;
             this.outBox.TabStop = false;
             this.outBox.Text = "";
@@ -478,9 +478,9 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.outBox);
-            this.groupBox3.Location = new System.Drawing.Point(129, 164);
+            this.groupBox3.Location = new System.Drawing.Point(12, 237);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(347, 176);
+            this.groupBox3.Size = new System.Drawing.Size(484, 198);
             this.groupBox3.TabIndex = 20;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Результаты расчета";
@@ -499,7 +499,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(488, 351);
+            this.ClientSize = new System.Drawing.Size(505, 447);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.buttonCalculation);
             this.Controls.Add(this.groupBox2);
@@ -508,8 +508,8 @@
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(504, 390);
-            this.MinimumSize = new System.Drawing.Size(504, 390);
+            this.MaximumSize = new System.Drawing.Size(521, 486);
+            this.MinimumSize = new System.Drawing.Size(521, 486);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Расчет состава продуктов взрыва";
