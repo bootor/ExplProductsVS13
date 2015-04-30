@@ -27,7 +27,9 @@ namespace ExplProducts
         private double[,] prod_mass,prod_qi,prod_coeff,prod_dens;
         private string[,] prod_names;
         private double[,] prod_moles;
-        
+        private double c_dens;
+        private double[,] IngCoeff;
+
         Dictionary<double, double>[] chnprod_cp;
         Dictionary<double, double>[,] prod_cp;
 
@@ -47,18 +49,18 @@ namespace ExplProducts
         private void loadData()
         {
             #region variables first init
-            metal_names = new string[] { "K", "Na", "Ca", "Al", "Si", "P" };
-            metal_val = new int[] { 1, 1, 2, 3, 4, 5 };
-            metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-            metal_mass = new double[] { 39.0983, 22.98977, 40.08, 26.98154, 28.086, 30.97376 };
+            metal_names = new string[] { "K", "Na", "Li", "Ca", "Mg", "Al", "B", "Si", "P" };
+            metal_val = new int[] { 1, 1, 1, 2, 2, 3, 3, 4, 5 };
+            metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            metal_mass = new double[] { 39.0983, 22.98977, 6.9412, 40.08, 24.305, 26.98154, 10.812, 28.086, 30.97376 };
 
             chnprod_cp = new Dictionary<double, double>[9];
             for (int i = 0; i < 9; i++ )
                 chnprod_cp[i] = new Dictionary<double, double>();
-            prod_cp = new Dictionary<double, double>[3,6];
+            prod_cp = new Dictionary<double, double>[3,9];
             for (int i = 0; i < 3; i++ )
-                for (int j = 0; j < 6; j++)
-                    prod_cp[i,j] = new Dictionary<double, double>();
+                for (int j = 0; j < 9; j++)
+                    prod_cp[i, j] = new Dictionary<double, double>();
             
             chn_names = new string[] { "C", "H", "N" };
             chn_atoms = new double[] { 0.0, 0.0, 0.0 };
@@ -69,33 +71,35 @@ namespace ExplProducts
             oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
             oxy_mass = new double[] { 18.9984, 35.453, 15.9994 };
 
-            prod_names = new string[,] { { "KF", "NaF", "CaF2", "AlF3", "SiF4", "PF5" }, 
-                                         { "KCl", "NaCl", "CaCl2", "AlCl3", "SiCl4", "PCl5" }, 
-                                         { "K2O", "Na2O", "CaO", "Al2O3", "SiO2", "P2O5" } };
-            prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-            prod_coeff = new double[,] { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
-                                         { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
-                                         { 0.5, 0.5, 1.0, 0.5, 1.0, 0.5 } };
-            prod_mass =  new double[,] { { 58.0967, 41.98817, 78.0768, 83.97674, 104.0796, 125.96576 },
-                                         { 74.5513, 58.44277, 110.986, 133.34054, 169.898, 208.23876 },
-                                         { 94.196, 61.97894, 56.0794, 101.96128, 60.0848, 141.94452} };
-            prod_qi =    new double[,] { { 569.9, 576.6, 1228.0, 1510.4, 1614.9, 1593 }, 
-                                         { 437.02, 410.4, 796.18, 584.1, 687.8, 366.9 }, 
-                                         { 363.6, 418.4, 635.85, 1677.5, 910.7, 1124.371 } };
-            prod_dens  = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 1.98, 2.165, 2.15, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 2.39, 3.37, 3.65, 0.0, 2.39 } };
+            prod_names = new string[,] { { "KF", "NaF", "LiF", "CaF2", "MgF2", "AlF3", "BF3", "SiF4", "PF5" }, 
+                                         { "KCl", "NaCl", "LiCl", "CaCl2", "MgCl2", "AlCl3", "BCl3", "SiCl4", "PCl5" }, 
+                                         { "K2O", "Na2O", "Li2O", "CaO", "MgO", "Al2O3", "B2O3", "SiO2", "P2O5" } };
+            prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+            prod_coeff = new double[,] { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
+                                         { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, 
+                                         { 0.5, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, 1.0, 0.5 } };
+            prod_mass =  new double[,] { { 58.0967, 41.98817, 25.9396, 78.0768, 62.3108, 83.97674,67.8072,  104.0796, 125.96576 },
+                                         { 74.5513, 58.44277, 42.3942, 110.986, 95.211, 133.34054, 117.171, 169.898, 208.23876 },
+                                         { 94.196, 61.97894, 29.8818, 56.0794, 40.3044, 101.96128, 69.6222, 60.0848, 141.94452} };
+            prod_qi =    new double[,] { { 569.9, 576.6, 618.3, 1228.0, 1124.2, 1510.4, 0.0, 1614.9, 1593 }, 
+                                         { 437.02, 410.4, 408.54, 796.18, 644.3, 584.1, 0.0, 687.8, 366.9 }, 
+                                         { 363.6, 418.4, 597.88, 635.85, 601.5, 1677.5, 1273.5, 910.7, 1124.371 } };
+            prod_dens  = new double[,] { { 2.505, 2.56, 2.63, 3.181, 3.177, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 1.98, 2.165, 2.07, 2.15, 2.316, 0.0, 0.0, 0.0, 0.0 }, 
+                                         { 2.32, 2.39, 2.013, 3.37, 3.58, 3.65, 2.18, 2.655, 2.39 } };
+            
+            c_dens = 2.267; // 3.515 алмаз
 
             chnprod_names = new string[] { "CO2", "CO", "C", "H2O", "H2", "O2", "N2", "HF", "HCl" };
             chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             chnprod_mass =  new double[] { 44.0096, 28.0102, 12.0108, 18.0153, 2.0159, 31.9988, 28.0134, 20.00635, 36.46095 };
-            chnprod_qi =    new double[] { 393.7, 113.86, 0.0, 241.91, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            chnprod_qi =    new double[] { 393.7, 113.86, 0.0, 241.91, 0.0, 0.0, 0.0, 273.3, 92.31 };
             chnprod_gases =    new int[] { 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 
-            
-            
+            IngCoeff = new double[,] { { 1.0, 1.0, 1.0, 1.0 }, { 1.511, 1.511, 1.511, 1.511 } };
+
             System.IO.StreamReader file;
             string line;
             string[] split = { };
@@ -193,9 +197,7 @@ namespace ExplProducts
         private void readDataFromFields()
         {
             double number = 0.0;
-            // atoms parsing
-            //chn_atoms[0] = double.Parse(textBoxC.Text, System.Globalization.CultureInfo.InvariantCulture);
-            
+            //CHN
             if (double.TryParse(textBoxC.Text, out number))
             {
                 chn_atoms[0] = number;
@@ -208,46 +210,65 @@ namespace ExplProducts
             {
                 chn_atoms[2] = number;
             }
-            if (double.TryParse(textBoxO.Text, out number))
+            //Oxy
+            if (double.TryParse(textBoxF.Text, out number))
             {
-                oxy_atoms[2] = number;
+                oxy_atoms[0] = number;
             }
             if (double.TryParse(textBoxCl.Text, out number))
             {
                 oxy_atoms[1] = number;
             }
-            if (double.TryParse(textBoxF.Text, out number))
+            if (double.TryParse(textBoxO.Text, out number))
             {
-                oxy_atoms[0] = number;
+                oxy_atoms[2] = number;
             }
+            //Metals
             if (double.TryParse(textBoxK.Text, out number))
             {
                 metal_atoms[0] = number;
-            }
-            if (double.TryParse(textBoxCa.Text, out number))
-            {
-                metal_atoms[2] = number;
             }
             if (double.TryParse(textBoxNa.Text, out number))
             {
                 metal_atoms[1] = number;
             }
-            if (double.TryParse(textBoxAl.Text, out number))
+            if (double.TryParse(textBoxLi.Text, out number))
+            {
+                metal_atoms[2] = number;
+            }
+            if (double.TryParse(textBoxCa.Text, out number))
             {
                 metal_atoms[3] = number;
             }
-            if (double.TryParse(textBoxP.Text, out number))
+            if (double.TryParse(textBoxMg.Text, out number))
+            {
+                metal_atoms[4] = number;
+            }
+            if (double.TryParse(textBoxAl.Text, out number))
             {
                 metal_atoms[5] = number;
             }
+            if (double.TryParse(textBoxB.Text, out number))
+            {
+                metal_atoms[6] = number;
+            }
             if (double.TryParse(textBoxSi.Text, out number))
             {
-                metal_atoms[4] = number;
+                metal_atoms[7] = number;
+            }
+            if (double.TryParse(textBoxP.Text, out number))
+            {
+                metal_atoms[8] = number;
             }
             // other params parsing
             if (double.TryParse(textBoxQvv.Text, out number))
             {
                 Qvv = number;
+            }
+            // Negative Qvv
+            if (checkBoxNegative.Checked == true)
+            {
+                Qvv = -Qvv;
             }
             if (double.TryParse(textBoxRovv.Text, out number))
             {
@@ -267,7 +288,7 @@ namespace ExplProducts
 
         {
             #region atoms copy
-            metal_atoms_new = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            metal_atoms_new = new double[9] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             for (int i = 0; i < metal_atoms_new.Length; i++)
             {
                 metal_atoms_new[i] = metal_atoms[i];
@@ -467,26 +488,29 @@ namespace ExplProducts
         private double getB(string prod, double T)
         {
             //chnprod { "CO2", "CO", "C", "H2O", "H2", "O2", "N2", "HF", "HCl" };
+            double d = 0.0;
             if (prod == "CO2")
-                return 37.0;
+                d = (3.1271186 * Math.Pow(10, -5) + 4.9667861 * Math.Pow(10, -10) * T - 16.510759 / Math.Pow(T, 2)) * Math.Pow(10, 6);
             else if (prod == "CO")
-                return 33.0;
+                d = (3.6071846 * Math.Pow(10, -5) - 3.1907692 * Math.Pow(10, -10) * T - 6.3027692 / Math.Pow(T, 2)) * Math.Pow(10, 6);
             else if (prod == "C")
-                return 0.0;
+                d = 0.0;
             else if (prod == "H2O")
-                return 7.9;
+                d = (1.5988709 * Math.Pow(10, -5) + 6.5681201 * Math.Pow(10, -10) * T - 39.43786 / Math.Pow(T, 2)) * Math.Pow(10, 6);
             else if (prod == "H2")
-                return 34.0;
+                d = (1.809596 * Math.Pow(10, -5) + 2.8121968 * Math.Pow(10, -11) * T - 0.40375573 / Math.Pow(T, 2)) * Math.Pow(10, 6);
             else if (prod == "O2")
-                return 34.0;
+                d = Math.Exp(-6.1804783 - 1083.5894 / T - 0.50422788 * Math.Log(T)) * Math.Pow(10, 6);
             else if (prod == "N2")
-                return 34.0;
+                d = 4.6203951 * Math.Pow(10, -7) * Math.Pow(0.99971877, T) * Math.Pow(T, 0.63546147) * Math.Pow(10, 6);
             else if (prod == "HF")
-                return 0.0;
+                d = 0.069 * (-0.465753462 + 20.6854316 * 461 / T - 165.619309 * Math.Pow(461, 2) / Math.Pow(T, 2) + 631.85106 * Math.Pow(461, 3) / Math.Pow(T, 3)
+                             - 1318.63692 * Math.Pow(461, 4) / Math.Pow(T, 4) + 1493.58 * Math.Pow(461, 5) / Math.Pow(T, 5)) * 1000;
             else if (prod == "HCl")
-                return 0.0;
-            else
-                return 0.0;
+                d = 0.0858 * (0.26919324 + 1.69613468 * 324.69 / T - 19.9226234 * 324.69 * 324.69 / T / T + 70.3694151 * Math.Pow(324.69, 3) / Math.Pow(T, 3)
+                    - 144.65505 * Math.Pow(324.69, 4) / Math.Pow(T, 4) + 15.8137 * Math.Pow(324.69, 5) / Math.Pow(T, 5) + 192.38009 * Math.Pow(324.69, 6) / Math.Pow(T, 6)) * 1000;
+            
+            return (double)d;
         }
 
         private double getG(double T)
@@ -497,8 +521,12 @@ namespace ExplProducts
             for (int i = 0; i < oxy_names.Length; i++)
                 for (int j = 0; j < metal_names.Length; j++)
                 {
-                    alpha += prod_moles[i, j] * prod_mass[i, j] / prod_dens[i, j];
+                    if ((oxy_val[i] < 2 && metal_val[j] < 3) || (oxy_val[i] > 1))
+                    {
+                        alpha += prod_moles[i, j] * prod_mass[i, j] / prod_dens[i, j];
+                    }
                 }
+            alpha += chnprod_moles[2] * c_dens; // Плюс углерод
 
             double Vg = Vkg - alpha; // Объем занимаемый газами взрыва, см3
             double GasDolya = 1 - alpha * Rovv / 1000; // Доля объема, занимаемая газами
@@ -518,6 +546,13 @@ namespace ExplProducts
             double logG = 4.38 * Npr * GasDolya * (x1 + 0.625 * Math.Pow(x1, 2) 
                           + 0.287 * Math.Pow(x1, 3) + 0.193 * Math.Pow(x1, 4)) / b;
             return Math.Pow(10, logG);
+        }
+
+        private double getIngCoeff()
+        {
+            double result = 0.0;
+            
+            return result;
         }
 
         private double foundT(double q)
@@ -766,6 +801,70 @@ namespace ExplProducts
             }
         }
 
+        private void textBoxLi_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char ch = e.KeyChar;
+
+            if (ch == 46 && textBoxLi.Text.IndexOf('.') != -1)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (!Char.IsDigit(ch) && ch != 8 && ch != 46)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBoxMg_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char ch = e.KeyChar;
+
+            if (ch == 46 && textBoxMg.Text.IndexOf('.') != -1)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (!Char.IsDigit(ch) && ch != 8 && ch != 46)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBoxB_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char ch = e.KeyChar;
+
+            if (ch == 46 && textBoxB.Text.IndexOf('.') != -1)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (!Char.IsDigit(ch) && ch != 8 && ch != 46)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBoxBa_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char ch = e.KeyChar;
+
+            if (ch == 46 && textBoxBa.Text.IndexOf('.') != -1)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (!Char.IsDigit(ch) && ch != 8 && ch != 46)
+            {
+                e.Handled = true;
+            }
+        }
+
         private void textBoxQvv_KeyPress(object sender, KeyPressEventArgs e)
         {
             char ch = e.KeyChar;
@@ -881,11 +980,23 @@ namespace ExplProducts
                         textBoxAl.Text = lines[9];
                         textBoxP.Text = lines[10];
                         textBoxSi.Text = lines[11];
-                        textBoxQvv.Text = lines[12];
-                        textBoxMaxRo.Text = lines[13];
-                        textBoxRovv.Text = lines[14];
-                        textBoxDkr.Text = lines[15];
-                        textBoxDvv.Text = lines[16];
+                        textBoxLi.Text = lines[12];
+                        textBoxMg.Text = lines[13];
+                        textBoxB.Text = lines[14];
+                        textBoxBa.Text = lines[15];
+                        if (lines[16] == "1")
+                        {
+                            checkBoxNegative.Checked = true;
+                        }
+                        else
+                        {
+                            checkBoxNegative.Checked = false;
+                        }
+                        textBoxQvv.Text = lines[17];
+                        textBoxMaxRo.Text = lines[18];
+                        textBoxRovv.Text = lines[19];
+                        textBoxDkr.Text = lines[20];
+                        textBoxDvv.Text = lines[21];
                     }
                     file.Close();
                 }
@@ -904,7 +1015,7 @@ namespace ExplProducts
                 try
                 {
                     string name = saveFileDialog.FileName;
-                    string[] lines = new string[17];
+                    string[] lines = new string[25];
                     lines[0] = textBoxC.Text;
                     lines[1] = textBoxH.Text;
                     lines[2] = textBoxN.Text;
@@ -917,11 +1028,23 @@ namespace ExplProducts
                     lines[9] = textBoxAl.Text;
                     lines[10] = textBoxP.Text;
                     lines[11] = textBoxSi.Text;
-                    lines[12] = textBoxQvv.Text;
-                    lines[13] = textBoxMaxRo.Text;
-                    lines[14] = textBoxRovv.Text;
-                    lines[15] = textBoxDkr.Text;
-                    lines[16] = textBoxDvv.Text;
+                    lines[12] = textBoxLi.Text;
+                    lines[13] = textBoxMg.Text;
+                    lines[14] = textBoxB.Text;
+                    lines[15] = textBoxBa.Text;
+                    if (checkBoxNegative.Checked == true)
+                    {
+                        lines[16] = "1";
+                    }
+                    else
+                    {
+                        lines[16] = "0";
+                    }
+                    lines[20] = textBoxQvv.Text;
+                    lines[21] = textBoxMaxRo.Text;
+                    lines[22] = textBoxRovv.Text;
+                    lines[23] = textBoxDkr.Text;
+                    lines[24] = textBoxDvv.Text;
                     File.WriteAllLines(name, lines);
                 }
                 catch (IOException)
@@ -937,13 +1060,17 @@ namespace ExplProducts
                 outBox.Text = "";
 
                 #region variables reset
-                metal_atoms = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-                chn_atoms = new double[] { 0.0, 0.0, 0.0 };
-                oxy_atoms = new double[] { 0.0, 0.0, 0.0 };
-                prod_moles = new double[,] { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }, 
-                                         { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-                chnprod_moles = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+                for (int i = 0; i < metal_atoms.Length; i++ )
+                    metal_atoms[i] = 0.0;
+                for (int i = 0; i < chn_atoms.Length; i++)
+                    chn_atoms[i] = 0.0;
+                for (int i = 0; i < oxy_atoms.Length; i++) 
+                    oxy_atoms[i] = 0.0;
+                for (int i = 0; i < oxy_atoms.Length; i++)
+                    for (int j = 0; j < metal_atoms.Length; j++) 
+                        prod_moles[i, j] = 0.0;
+                for (int i = 0; i < chnprod_moles.Length; i++)
+                    chnprod_moles[i] = 0.0;
                 #endregion
 
                 readDataFromFields();
@@ -965,7 +1092,8 @@ namespace ExplProducts
                     if (chnprod_moles[1] > 0 || chnprod_moles[4] > 0)
                     {
                         double kvg = getKvg(T);
-                        //kvg *= getG(T);
+                        double g = getG(T);
+                        kvg *= g;
                         double M = cho[1] / 2 - cho[2] + cho[0];
                         double R = cho[2] - cho[0];
                         double A = (kvg * M + cho[2]) / (2 * (kvg - 1));
@@ -987,10 +1115,7 @@ namespace ExplProducts
 
                 if (correction)
                     reactionPrint();
-                outBox.Text += "\n";
-                outBox.Text += "Теплота взрыва: " + Qcorr.ToString("##.##") + " кДж/кг\n";
-                outBox.Text += "Температура взрыва: " + T.ToString("##.##") + " К\n";
-
+                
                 double Npr = 0.0; // Продукты взрыва, моль
                 for (int i = 0; i < chnprod_moles.Length; i++ )
                 {
@@ -1010,9 +1135,14 @@ namespace ExplProducts
                 double D = Math.Sqrt(1 - eps) * (0.314 * Math.Sqrt(n * T) * Rovv + 1.95) * 1000; // Скорость детонации
                 D *= (1 - Dkr / Dvv); // Скорость детонации в диаметре
 
+                
+                outBox.Text += "\n";
+                outBox.Text += "Теплота взрыва: " + Qcorr.ToString("##.##") + " кДж/кг\n";
+                outBox.Text += "Температура взрыва: " + T.ToString("##.##") + " К\n";
                 outBox.Text += "Масса брутто-формулы ВВ: " + Mvv.ToString("##.####") + " г\n";
                 outBox.Text += "Продукты взрыва ВВ: " + Npr.ToString("##.####") + " моль\n";
-                outBox.Text += "Твердые компоненты ВВ: " + (eps * Mvv).ToString("##.####") + " моль/кг\n";
+                outBox.Text += "Продукты взрыва ВВ: " + n.ToString("##.####") + " моль/кг\n";
+                outBox.Text += "Твердые компоненты ВВ: " + eps.ToString("##.####") + " кг/кг\n";
                 outBox.Text += "Объем газов взрыва: " + V.ToString("##.##") + " л/кг\n";
                 outBox.Text += "Скорость детонации ВВ: " + D.ToString("##.##") + " м/с\n";
             }
